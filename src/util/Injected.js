@@ -58,10 +58,6 @@ exports.ExposeStore = (moduleRaidStr) => {
     window.Store.LidUtils = window.mR.findModule('getCurrentLid')[0];
     window.Store.WidToJid = window.mR.findModule('widToUserJid')[0];
     window.Store.JidToWid = window.mR.findModule('userJidToUserWid')[0];
-    window.Store.Settings = {
-        ...window.mR.findModule('ChatlistPanelState')[0],
-        setPushname: window.mR.findModule((m) => m.setPushname && !m.ChatlistPanelState)[0].setPushname
-    };
     
     /* eslint-disable no-undef, no-cond-assign */
     window.Store.QueryExist = ((m = window.mR.findModule('queryExists')[0]) ? m.queryExists : window.mR.findModule('queryExist')[0].queryWidExists);
@@ -111,6 +107,13 @@ exports.ExposeStore = (moduleRaidStr) => {
     const _linkPreview = window.mR.findModule('queryLinkPreview');
     if (_linkPreview && _linkPreview[0] && _linkPreview[0].default) {
         window.Store.Wap = _linkPreview[0].default;
+    }
+
+    const _getLinkPreview = window.mR.findModule('getLinkPreview');
+    if (_getLinkPreview && _getLinkPreview[0].getLinkPreview && _getLinkPreview[0].getLinkPreview.length === 0) {
+        window.Store.getLinkPreview = _getLinkPreview[0].getLinkPreview;
+    } else {
+        window.Store.getLinkPreview = () => null;
     }
 
     const _isMDBackend = window.mR.findModule('isMDBackend');
@@ -280,6 +283,16 @@ exports.LoadUtils = () => {
                     preview.preview = true;
                     preview.subtype = 'url';
                     options = { ...options, ...preview };
+                }
+
+            } else {
+                const link = window.Store.Validators.findLink(content);
+                if (link) {
+                    const preview = await window.Store.getLinkPreview(link).catch(() => null);
+                    if (preview) {
+                        preview.data.subtype = 'url';
+                        options = { ...options, ...preview.data };
+                    }
                 }
             }
         }
