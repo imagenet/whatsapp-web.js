@@ -80,7 +80,7 @@ class Chat extends Base {
          * @type {Message}
          */
         this.lastMessage = data.lastMessage ? new Message(super.client, data.lastMessage) : undefined;
-        
+
         return super._patch(data);
     }
 
@@ -91,7 +91,7 @@ class Chat extends Base {
      * @returns {Promise<Message>} Message that was just sent
      */
     async sendMessage(content, options) {
-        return this.client.sendMessage(this.id._serialized, content, options);
+        return await this.client.sendMessage(this.id._serialized, content, options);
     }
 
     /**
@@ -170,7 +170,7 @@ class Chat extends Base {
     /**
      * Mark this chat as unread
      */
-    async markUnread(){
+    async markUnread() {
         return this.client.markChatUnread(this.id._serialized);
     }
 
@@ -202,7 +202,7 @@ class Chat extends Base {
                     if (!loadedMessages || !loadedMessages.length) break;
                     msgs = [...loadedMessages.filter(msgFilter), ...msgs];
                 }
-                
+
                 if (msgs.length > searchOptions.limit) {
                     msgs.sort((a, b) => (a.t > b.t) ? 1 : -1);
                     msgs = msgs.splice(msgs.length - searchOptions.limit);
